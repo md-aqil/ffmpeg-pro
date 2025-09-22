@@ -1,0 +1,75 @@
+"node_modules"
+node_modules/
+
+.env
+
+build/
+
+dist/
+
+*.log
+
+# FFmpeg binaries
+ffmpeg-bin/
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Icon?
+~*.*
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files and directories
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Upload and converted files directories
+server/uploads/
+server/converted/
+
+# Log files
+*.log
+logs/
+*.log.*
+
+# Environment files
+.env.local
+.env.*.local
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by Jest
+coverage/
+
+# Build outputs
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Temporary folders
+.DS_Store
+desktop.ini
+
+# Project-specific files
+.kilocode/
+.qoder/
+
+# Ignore all files in uploads and converted directories
+server/uploads/*
+server/converted/*
+
+# But keep the directories themselves
+!server/uploads/.gitkeep
+!server/converted/.gitkeep

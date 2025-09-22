@@ -1,0 +1,232 @@
+
+@keyframes slideInRight {
+  from { 
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.converter-header h2 {
+  margin: 0;
+  color: var(--sidebar-primary);
+  font-size: 1.5rem;
+}
+
+/* Upload Section */
+.upload-section {
+ 
+  
+  border-radius: var(--radius-md);
+  border: 2px dashed var(--border);
+  transition: all 0.3s ease;
+  animation: slideUp 0.4s ease-out;
+  text-align: center;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.upload-section.drag-over {
+  border-color: var(--primary);
+  background-color: rgba(0, 0, 0, 0.03);
+  transform: scale(1.02);
+}
+
+.upload-section-icon {
+  font-size: 3rem;
+  color: var(--muted-foreground);
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+.upload-section.drag-over .upload-section-icon {
+  color: var(--primary);
+  transform: scale(1.1);
+}
+
+.upload-section h3 {
+  margin-top: 0;
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.upload-section p {
+  color: var(--muted-foreground);
+  margin:5px;
+  font-size: 0.95rem;
+}
+
+.upload-section button {
+  color: #333;
+  border: none;
+  background: none;
+  outline: none;
+  font-size: 14px;
+ 
+}
+
+.upload-section button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  transition: width 0.3s ease;
+}
+
+.upload-section button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.upload-section button:hover::before {
+  width: 100%;
+}
+
+.file-info {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+  animation: fadeIn 0.5s ease-in-out;
+  width: 100%;
+}
+
+.file-info p {
+  margin: 0.5rem 0;
+  font-weight: 500;
+}
+
+.file-info img {
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  margin-top: 0.75rem;
+  max-width: 100%;
+  height: auto;
+  transition: transform 0.3s ease;
+}
+
+.file-info img:hover {
+  transform: scale(1.02);
+}
+
+.file-types-info {
+  font-size: 0.8rem;
+  color: var(--muted-foreground);
+  margin-top: 0.5rem;
+}
+
+/* Result Section */
+.result-section {
+  margin-top: 2rem;
+  padding: 1rem;
+  background-color: var(--card);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.result-section h3 {
+  margin-top: 0;
+  color: var(--primary);
+}
+
+.result-details {
+  margin: 1rem 0;
+}
+
+.result-details p {
+  margin: 0.5rem 0;
+}
+
+.download-button {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.download-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  transition: width 0.3s ease;
+}
+
+.download-button:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+}
+
+.download-button:hover::before {
+  width: 100%;
+}
+
+/* No Result Message */
+.no-result {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted-foreground);
+  text-align: center;
+  padding: 2rem;
+  animation: fadeIn 1s ease-in-out;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .right-sidebar {
+    width: 100%;
+    height: auto;
+    max-height: 500px;
+  }
+}

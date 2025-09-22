@@ -1,0 +1,178 @@
+.video-timeline {
+  height: 200px;
+  background-color: var(--muted);
+  border-top: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+
+.timeline-header {
+  height: 30px;
+  background-color: var(--background);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+
+.time-ruler {
+  position: relative;
+  height: 100%;
+}
+
+.time-marker {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 1px;
+  background-color: var(--border);
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 4px;
+}
+
+.time-marker span {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  transform: translateX(-50%);
+}
+
+.timeline-tracks {
+  height: calc(100% - 30px);
+  position: relative;
+  cursor: pointer;
+}
+
+.track {
+  height: 33.33%;
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+
+.track-label {
+  width: 80px;
+  background-color: var(--background);
+  border-right: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+}
+
+.track-content {
+  flex: 1;
+  position: relative;
+  background-color: var(--card);
+}
+
+.clip {
+  position: absolute;
+  height: calc(100% - 8px);
+  top: 4px;
+  background-color: var(--primary);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  color: var(--primary-foreground);
+  font-size: 0.75rem;
+  cursor: move;
+  min-width: 50px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border: 1px solid transparent;
+  user-select: none;
+}
+
+.clip:hover {
+  opacity: 0.8;
+}
+
+.clip.selected {
+  border-color: #ff0000;
+  box-shadow: 0 0 0 2px #ff0000;
+}
+
+.clip-content {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.video-track .clip {
+  background-color: var(--primary);
+}
+
+.audio-track .clip {
+  background-color: var(--secondary);
+  color: var(--secondary-foreground);
+}
+
+.overlay-track .clip {
+  background-color: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.clip-handles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.clip-handle-left,
+.clip-handle-right {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  background-color: rgba(255, 255, 255, 0.7);
+  cursor: ew-resize;
+  pointer-events: all;
+}
+
+.clip-handle-left {
+  left: 0;
+}
+
+.clip-handle-right {
+  right: 0;
+}
+
+.playhead {
+  position: absolute;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background-color: #ff0000;
+  z-index: 10;
+  cursor: ew-resize;
+}
+
+.playhead-head {
+  position: absolute;
+  top: 0;
+  left: -4px;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #ff0000;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .video-timeline {
+    height: 150px;
+  }
+  
+  .track-label {
+    width: 60px;
+    font-size: 0.75rem;
+  }
+}

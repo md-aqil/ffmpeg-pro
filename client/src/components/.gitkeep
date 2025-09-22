@@ -1,0 +1,23 @@
+# API Endpoint Structure
+
+## Video Endpoints
+- `POST /api/video/convert` - Format conversion
+- `POST /api/video/edit` - Cut/trim/merge operations  
+- `POST /api/video/effects` - Apply filters/effects
+- `POST /api/video/extract-frames` - Extract frames as images
+
+## Audio Endpoints
+- `POST /api/audio/convert` - Audio format conversion
+- `POST /api/audio/extract` - Extract audio from video
+- `POST /api/audio/edit` - Cut/trim/fade operations
+- `POST /api/audio/mix` - Mix multiple audio tracks
+
+## Image Endpoints  
+- `POST /api/image/convert` - Image format conversion
+- `POST /api/image/edit` - Resize/crop/rotate operations
+- `POST /api/image/batch` - Process multiple images
+
+## Shared Endpoints
+- `GET /api/download/:filename` - Download processed files
+- `GET /api/metadata/:filename` - Get file information
+- `POST /api/batch/process` - Batch operations
