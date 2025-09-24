@@ -1,6 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Header from './components/Header';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import ImagePage from './pages/ImagePage';
 import VideoPage from './pages/VideoPage';
 import AudioPage from './pages/AudioPage';
@@ -11,12 +10,12 @@ function App() {
   return (
     <Router>
       <div className="App main-container">
-        <Header />
         <main className="">
           <Routes>
+            <Route path="/" element={<Navigate to="/image" />} />
+            <Route path="/image" element={<ImagePage />} />
             <Route path="/video" element={<VideoPage />} />
             <Route path="/audio" element={<AudioPage />} />
-            <Route path="/image" element={<ImagePage />} />
           </Routes>
         </main>
       </div>

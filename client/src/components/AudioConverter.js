@@ -29,11 +29,49 @@ const AudioConverter = forwardRef(({ onConversionComplete, selectedFiles, onStat
   const [fadeIn, setFadeIn] = useState('');
   const [fadeOut, setFadeOut] = useState('');
 
-  // Expose status for parent component to use in toolbar
+  // Expose methods to parent component
   useImperativeHandle(ref, () => ({
     getUploadStatus: () => uploadStatus,
-    getConversionStatus: () => conversionStatus
+    getConversionStatus: () => conversionStatus,
+    handleConvert: () => {
+      if (activeTab === 'convert') {
+        handleConvert();
+      } else if (activeTab === 'extract') {
+        handleExtract();
+      } else if (activeTab === 'trim') {
+        handleTrim();
+      } else if (activeTab === 'mix') {
+        handleMix();
+      } else if (activeTab === 'effects') {
+        handleApplyEffects();
+      }
+    }
   }));
+
+  // Listen for custom event to trigger conversion
+  useEffect(() => {
+    const handleTriggerConvert = (event) => {
+      if (event.detail.action === 'convert') {
+        // Trigger the appropriate conversion based on the active tab
+        if (activeTab === 'convert') {
+          handleConvert();
+        } else if (activeTab === 'extract') {
+          handleExtract();
+        } else if (activeTab === 'trim') {
+          handleTrim();
+        } else if (activeTab === 'mix') {
+          handleMix();
+        } else if (activeTab === 'effects') {
+          handleApplyEffects();
+        }
+      }
+    };
+
+    window.addEventListener('triggerConvert', handleTriggerConvert);
+    return () => {
+      window.removeEventListener('triggerConvert', handleTriggerConvert);
+    };
+  }, [activeTab, fileIds, fileNames, outputFormat, quality, bitrate, startTime, duration, volume, fadeIn, fadeOut]);
 
   // Notify parent of status changes
   useEffect(() => {

@@ -70,6 +70,37 @@ input:focus, select:focus, textarea:focus {
   box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
 }
 
+.icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-btn svg {
+    width: 24px;
+    height: 24px;
+    color: var(--foreground);
+}
+
+.icon-btn .dark-icon {
+    display: none;
+}
+
+.icon-btn .light-icon {
+    display: block;
+}
+
+[data-theme='dark'] .icon-btn .dark-icon {
+    display: block;
+}
+
+[data-theme='dark'] .icon-btn .light-icon {
+    display: none;
+}
 /* Responsive images */
 img {
   max-width: 100%;

@@ -1,5 +1,5 @@
 // client/src/components/ImageConverter.js
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import './ImageConverter.css';
 import {
   convertImageFile,
@@ -12,7 +12,7 @@ import {
   applyAdvancedImageEffects
 } from '../services/api';
 
-const ImageConverter = ({ onConversionComplete, selectedFile }) => {
+const ImageConverter = forwardRef(({ onConversionComplete, selectedFile }, ref) => {
   // Removed local selectedFile state since it's now passed as a prop
   const [targetFormat, setTargetFormat] = useState('jpg');
   const [isUploading, setIsUploading] = useState(false);
@@ -55,7 +55,58 @@ const ImageConverter = ({ onConversionComplete, selectedFile }) => {
   const [watermarkOpacity, setWatermarkOpacity] = useState(50);
   const [isApplyingWatermark, setIsApplyingWatermark] = useState(false);
   
-  // Removed fileInputRef since file selection is handled by the parent component
+  // Expose methods to parent component
+  useImperativeHandle(ref, () => ({
+    handleConvert: () => {
+      if (activeTab === 'convert') {
+        handleConvert();
+      } else if (activeTab === 'resize') {
+        handleResize();
+      } else if (activeTab === 'crop') {
+        handleCrop();
+      } else if (activeTab === 'effects') {
+        handleApplyEffect();
+      } else if (activeTab === 'advanced') {
+        handleApplyAdvancedEffects();
+      } else if (activeTab === 'optimize') {
+        handleOptimize();
+      } else if (activeTab === 'watermark') {
+        handleApplyWatermark();
+      }
+    },
+    getActiveTab: () => activeTab  // Add this to expose the active tab
+  }));
+
+  // Listen for custom event to trigger conversion
+  useEffect(() => {
+    const handleTriggerConvert = (event) => {
+      if (event.detail.action === 'convert') {
+        // Trigger the appropriate conversion based on the active tab
+        if (activeTab === 'convert') {
+          handleConvert();
+        } else if (activeTab === 'resize') {
+          handleResize();
+        } else if (activeTab === 'crop') {
+          handleCrop();
+        } else if (activeTab === 'effects') {
+          handleApplyEffect();
+        } else if (activeTab === 'advanced') {
+          handleApplyAdvancedEffects();
+        } else if (activeTab === 'optimize') {
+          handleOptimize();
+        } else if (activeTab === 'watermark') {
+          handleApplyWatermark();
+        }
+      }
+    };
+
+    window.addEventListener('triggerConvert', handleTriggerConvert);
+    return () => {
+      window.removeEventListener('triggerConvert', handleTriggerConvert);
+    };
+  }, [activeTab, selectedFile, targetFormat, resizeWidth, resizeHeight, cropX, cropY, cropWidth, cropHeight, 
+      selectedEffect, brightness, contrast, saturation, quality, compressionType, watermarkType, 
+      watermarkText, watermarkPosition, watermarkOpacity]);
 
   const supportedFormats = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'tiff'];
 
@@ -737,6 +788,6 @@ const ImageConverter = ({ onConversionComplete, selectedFile }) => {
       </div>
     </div>
   );
-};
+});
 
 export default ImageConverter;

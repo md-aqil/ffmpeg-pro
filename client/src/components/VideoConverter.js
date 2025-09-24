@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { uploadFile, getSupportedFormats, convertFile, downloadFile, getFileMetadata } from '../services/api';
 import './VideoConverter.css';
 
-const VideoConverter = ({ onConversionComplete, selectedFile }) => {
+const VideoConverter = forwardRef(({ onConversionComplete, selectedFile }, ref) => {
   const [fileId, setFileId] = useState(null);
   const [fileName, setFileName] = useState(null);
   const [uploadStatus, setUploadStatus] = useState(null);
@@ -17,6 +17,25 @@ const VideoConverter = ({ onConversionComplete, selectedFile }) => {
   const [convertedFile, setConvertedFile] = useState(null);
   const [progress, setProgress] = useState(0);
   const [fileMetadata, setFileMetadata] = useState(null);
+
+  // Expose methods to parent component
+  useImperativeHandle(ref, () => ({
+    handleConvert: handleConvert
+  }));
+
+  // Listen for custom event to trigger conversion
+  useEffect(() => {
+    const handleTriggerConvert = (event) => {
+      if (event.detail.action === 'convert') {
+        handleConvert();
+      }
+    };
+
+    window.addEventListener('triggerConvert', handleTriggerConvert);
+    return () => {
+      window.removeEventListener('triggerConvert', handleTriggerConvert);
+    };
+  }, [fileId, fileName, outputFormat, quality, width, height, manualBitrate]);
 
   // Fetch supported formats on component mount
   useEffect(() => {
@@ -342,6 +361,6 @@ const VideoConverter = ({ onConversionComplete, selectedFile }) => {
         </div>
     </section>
   );
-};
+});
 
 export default VideoConverter;
