@@ -70,6 +70,8 @@ export const createDefaultOperations = () => ([
     useImage: false,
     imageFileId: null,
     position: "bottom-right",
+    customX: 10,
+    customY: 10,
     opacity: 50,
   },
 ]);

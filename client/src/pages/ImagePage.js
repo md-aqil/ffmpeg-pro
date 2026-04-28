@@ -156,6 +156,8 @@ const ImagePage = () => {
              useImage: operation.useImage,
              imageFileId: operation.imageFileId,
              position: operation.position,
+             customX: operation.customX,
+             customY: operation.customY,
              opacity: operation.opacity,
            };
          default:

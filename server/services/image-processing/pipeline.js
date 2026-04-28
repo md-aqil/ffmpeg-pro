@@ -81,7 +81,7 @@ const escapeDrawtext = (value) => String(value ?? "")
   .replace(/\r?\n/g, " ");
 
 
-const buildFilterGraph = async (operations, currentLabel) => {
+const buildFilterGraph = async (operations, currentLabel, extraInputs = []) => {
     const filterGraph = [];
     let labelCounter = 0;
 
@@ -266,10 +266,15 @@ const buildFilterGraph = async (operations, currentLabel) => {
                 let x = "10";
                 let y = "10";
 
-                if (position.includes("right")) x = "w-tw-20";
-                if (position.includes("center")) x = "(w-tw)/2";
-                if (position.includes("bottom")) y = "h-th-20";
-                if (position.includes("middle")) y = "(h-th)/2";
+                if (position === "custom") {
+                    x = String(op.customX ?? 10);
+                    y = String(op.customY ?? 10);
+                } else {
+                    if (position.includes("right")) x = "w-tw-20";
+                    if (position.includes("center")) x = "(w-tw)/2";
+                    if (position.includes("bottom")) y = "h-th-20";
+                    if (position.includes("middle")) y = "(h-th)/2";
+                }
 
                 if (op.useImage && op.imageFileId) {
                     const watermarkPath = await resolveUploadedImagePath(op.imageFileId, op.imageFileName);
@@ -277,7 +282,11 @@ const buildFilterGraph = async (operations, currentLabel) => {
                         throw createHttpError("Watermark image not found", 404);
                     }
 
-                    const watermarkInputLabel = "1:v";
+                    // Track this extra input for runImagePipeline
+                    const inputIndex = 1 + extraInputs.length;
+                    extraInputs.push(watermarkPath);
+
+                    const watermarkInputLabel = `${inputIndex}:v`;
                     const watermarkFormatLabel = nextLabel("wm");
                     filterGraph.push({
                         filter: "format",
@@ -339,8 +348,7 @@ const runImagePipeline = async ({ fileId, fileName, operations, outputFormat, qu
   const outputFilename = `${uuidv4()}.${effectiveFormat}`;
   const outputPath = path.join(CONVERTED_DIR, outputFilename);
   const extraInputs = [];
-  
-  const { filterGraph, currentLabel } = await buildFilterGraph(operations, "0:v");
+  const { filterGraph, currentLabel } = await buildFilterGraph(operations, "0:v", extraInputs);
 
   console.log(`Starting complex single-pass pipeline for file ${fileId}`);
 

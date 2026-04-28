@@ -427,8 +427,32 @@ const OperationCard = ({ operation, onToggle, onExpand, onUpdate, active, imageS
                   <option value="bottom-left">Bottom Left</option>
                   <option value="bottom-right">Bottom Right</option>
                   <option value="center">Center</option>
+                  <option value="custom">Custom</option>
                 </select>
               </label>
+
+              {operation.position === 'custom' && (
+                <div className="field-grid two-up">
+                  <label className="field">
+                    <span className="field-label">X Offset</span>
+                    <input 
+                      type="number" 
+                      value={operation.customX} 
+                      onChange={(e) => onUpdate(operation.type, { customX: Number(e.target.value) })} 
+                      placeholder="10"
+                    />
+                  </label>
+                  <label className="field">
+                    <span className="field-label">Y Offset</span>
+                    <input 
+                      type="number" 
+                      value={operation.customY} 
+                      onChange={(e) => onUpdate(operation.type, { customY: Number(e.target.value) })} 
+                      placeholder="10"
+                    />
+                  </label>
+                </div>
+              )}
               <StudioSlider 
                 label="Opacity"
                 min={0}
