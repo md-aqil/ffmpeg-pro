@@ -1,6 +1,7 @@
 const path = require("path");
 const fs = require("fs");
 const { execFileSync } = require("child_process");
+const archiver = require("archiver");
 
 const UPLOADS_DIR = path.join(__dirname, "../../uploads");
 const CONVERTED_DIR = path.join(__dirname, "../../converted");
