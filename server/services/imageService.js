@@ -1,11 +1,8 @@
 // server/services/imageService.js
-const ffmpeg = require('fluent-ffmpeg');
+const ffmpeg = require('../utils/ffmpegConfig');
 const path = require('path');
 const fs = require('fs');
 
-// Set the path to FFmpeg executable
-const ffmpegPath = path.join(__dirname, '../../ffmpeg-bin/ffmpeg-master-latest-win64-gpl/bin/ffmpeg.exe');
-ffmpeg.setFfmpegPath(ffmpegPath);
 
 const convertImage = (inputPath, outputPath, targetFormat) => {
   return new Promise((resolve, reject) => {

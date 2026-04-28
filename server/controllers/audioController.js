@@ -74,7 +74,21 @@ const convertAudioFile = async (req, res) => {
     
     // Perform conversion
     console.log(`Starting audio conversion of file ${fileId} to ${outputFormat} with ${qualitySetting} quality`);
-    const outputPath = await convertAudio(inputFilePath, outputFormat, qualitySetting, bitrate);
+    
+    // Progress callback to send updates via SSE
+    const onProgress = (progress) => {
+      if (global.progressStreams && global.progressStreams[fileId]) {
+        const progressData = {
+          type: 'progress',
+          fileId: fileId,
+          percent: progress.percent || 0,
+          timemark: progress.timemark
+        };
+        global.progressStreams[fileId].write(`data: ${JSON.stringify(progressData)}\n\n`);
+      }
+    };
+
+    const outputPath = await convertAudio(inputFilePath, outputFormat, qualitySetting, bitrate, onProgress);
     console.log(`Audio conversion completed. Output file: ${outputPath}`);
     
     // Get output filename from path
@@ -153,7 +167,21 @@ const extractAudioFromVideo = async (req, res) => {
     
     // Perform extraction
     console.log(`Starting audio extraction from file ${fileId} to ${outputFormat}`);
-    const outputPath = await extractAudio(inputFilePath, outputFormat);
+    
+    // Progress callback to send updates via SSE
+    const onProgress = (progress) => {
+      if (global.progressStreams && global.progressStreams[fileId]) {
+        const progressData = {
+          type: 'progress',
+          fileId: fileId,
+          percent: progress.percent || 0,
+          timemark: progress.timemark
+        };
+        global.progressStreams[fileId].write(`data: ${JSON.stringify(progressData)}\n\n`);
+      }
+    };
+
+    const outputPath = await extractAudio(inputFilePath, outputFormat, onProgress);
     console.log(`Audio extraction completed. Output file: ${outputPath}`);
     
     // Get output filename from path
@@ -234,7 +262,21 @@ const trimAudioFile = async (req, res) => {
     
     // Perform trimming
     console.log(`Starting audio trimming of file ${fileId} from ${start}s for ${dur}s`);
-    const outputPath = await trimAudio(inputFilePath, start, dur);
+    
+    // Progress callback to send updates via SSE
+    const onProgress = (progress) => {
+      if (global.progressStreams && global.progressStreams[fileId]) {
+        const progressData = {
+          type: 'progress',
+          fileId: fileId,
+          percent: progress.percent || 0,
+          timemark: progress.timemark
+        };
+        global.progressStreams[fileId].write(`data: ${JSON.stringify(progressData)}\n\n`);
+      }
+    };
+
+    const outputPath = await trimAudio(inputFilePath, start, dur, onProgress);
     console.log(`Audio trimming completed. Output file: ${outputPath}`);
     
     // Get output filename from path

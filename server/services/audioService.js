@@ -1,11 +1,8 @@
-const ffmpeg = require('fluent-ffmpeg');
+const ffmpeg = require('../utils/ffmpegConfig');
 const path = require('path');
 const fs = require('fs').promises;
 const { v4: uuidv4 } = require('uuid');
 
-// Set the path to FFmpeg executable
-const ffmpegPath = path.join(__dirname, '../../ffmpeg-bin/ffmpeg-master-latest-win64-gpl/bin/ffmpeg.exe');
-ffmpeg.setFfmpegPath(ffmpegPath);
 
 /**
  * Convert audio file to specified format
@@ -15,7 +12,7 @@ ffmpeg.setFfmpegPath(ffmpegPath);
  * @param {string} bitrate - Custom bitrate (optional)
  * @returns {Promise<string>} Path to converted file
  */
-const convertAudio = async (inputFile, outputFormat, quality = 'medium', bitrate = null) => {
+const convertAudio = async (inputFile, outputFormat, quality = 'medium', bitrate = null, onProgress = null) => {
   try {
     console.log(`Starting audio conversion - input: ${inputFile}, output format: ${outputFormat}, quality: ${quality}, bitrate: ${bitrate}`);
     
@@ -67,6 +64,9 @@ const convertAudio = async (inputFile, outputFormat, quality = 'medium', bitrate
         })
         .on('progress', (progress) => {
           console.log('Processing:', progress.percent + '% done');
+          if (typeof onProgress === 'function') {
+            onProgress(progress);
+          }
         })
         .on('end', () => {
           console.log('FFmpeg processing finished successfully');
@@ -90,7 +90,7 @@ const convertAudio = async (inputFile, outputFormat, quality = 'medium', bitrate
  * @param {string} outputFormat - Desired output format for audio
  * @returns {Promise<string>} Path to extracted audio file
  */
-const extractAudio = async (inputFile, outputFormat) => {
+const extractAudio = async (inputFile, outputFormat, onProgress = null) => {
   try {
     console.log(`Starting audio extraction - input: ${inputFile}, output format: ${outputFormat}`);
     
@@ -119,6 +119,9 @@ const extractAudio = async (inputFile, outputFormat) => {
         })
         .on('progress', (progress) => {
           console.log('Processing:', progress.percent + '% done');
+          if (typeof onProgress === 'function') {
+            onProgress(progress);
+          }
         })
         .on('end', () => {
           console.log('FFmpeg processing finished successfully');
@@ -143,7 +146,7 @@ const extractAudio = async (inputFile, outputFormat) => {
  * @param {number} duration - Duration in seconds
  * @returns {Promise<string>} Path to trimmed file
  */
-const trimAudio = async (inputFile, startTime, duration) => {
+const trimAudio = async (inputFile, startTime, duration, onProgress = null) => {
   try {
     console.log(`Starting audio trimming - input: ${inputFile}, start: ${startTime}, duration: ${duration}`);
     
@@ -174,6 +177,9 @@ const trimAudio = async (inputFile, startTime, duration) => {
         })
         .on('progress', (progress) => {
           console.log('Processing:', progress.percent + '% done');
+          if (typeof onProgress === 'function') {
+            onProgress(progress);
+          }
         })
         .on('end', () => {
           console.log('FFmpeg processing finished successfully');
@@ -311,7 +317,7 @@ const applyAudioEffects = async (inputFile, effects) => {
       command
         .outputOptions([
           '-acodec libmp3lame',
-          '-ar 4100',
+          '-ar 44100',
           '-ac 2'
         ])
         .on('start', (commandLine) => {

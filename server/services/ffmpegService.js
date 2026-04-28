@@ -1,11 +1,8 @@
-const ffmpeg = require('fluent-ffmpeg');
+const ffmpeg = require('../utils/ffmpegConfig');
 const path = require('path');
 const fs = require('fs').promises;
 const { v4: uuidv4 } = require('uuid');
 
-// Set the path to FFmpeg executable
-const ffmpegPath = path.join(__dirname, '../../ffmpeg-bin/ffmpeg-master-latest-win64-gpl/bin/ffmpeg.exe');
-ffmpeg.setFfmpegPath(ffmpegPath);
 // Define video quality presets based on the rules
 const VIDEO_PRESETS = {
   'low': { width: 640, height: 360, bitrate: '500k' },
@@ -24,7 +21,7 @@ const VIDEO_PRESETS = {
  * @param {number} manualBitrate - Custom bitrate in kbps (optional)
  * @returns {Promise<string>} Path to converted file
  */
-const convertVideo = async (inputFile, outputFormat, quality = 'medium', width = null, height = null, manualBitrate = null) => {
+const convertVideo = async (inputFile, outputFormat, quality = 'medium', width = null, height = null, manualBitrate = null, onProgress = null) => {
   try {
     console.log(`Starting video conversion - input: ${inputFile}, output format: ${outputFormat}, quality: ${quality}, width: ${width}, height: ${height}, manualBitrate: ${manualBitrate}`);
     

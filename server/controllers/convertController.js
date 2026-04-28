@@ -68,7 +68,21 @@ const convertFile = async (req, res) => {
     
     // Perform conversion
     console.log(`Starting conversion of file ${fileId} to ${outputFormat} with ${qualitySetting} quality`);
-    const outputPath = await convertVideo(inputFilePath, outputFormat, qualitySetting, width, height, manualBitrate);
+    
+    // Progress callback to send updates via SSE
+    const onProgress = (progress) => {
+      if (global.progressStreams && global.progressStreams[fileId]) {
+        const progressData = {
+          type: 'progress',
+          fileId: fileId,
+          percent: progress.percent || 0,
+          timemark: progress.timemark
+        };
+        global.progressStreams[fileId].write(`data: ${JSON.stringify(progressData)}\n\n`);
+      }
+    };
+
+    const outputPath = await convertVideo(inputFilePath, outputFormat, qualitySetting, width, height, manualBitrate, onProgress);
     console.log(`Conversion completed. Output file: ${outputPath}`);
     
     // Get output filename from path

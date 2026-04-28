@@ -1,0 +1,17 @@
+[Unit]
+Description=FFmpeg Pro Studio Service
+After=network.target
+
+[Service]
+Type=simple
+User=ffmpegpro
+Group=ffmpegpro-dev
+WorkingDirectory=/var/www/ffmpeg-pro/server
+Environment=NODE_ENV=production
+EnvironmentFile=/etc/ffmpeg-pro/.env
+ExecStart=/usr/bin/node server.js
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

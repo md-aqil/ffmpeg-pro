@@ -48,6 +48,17 @@
   --shadow-2xl: 0px 4px 8px -1px hsl(0 0% 0% / 0.25);
   --tracking-normal: 0em;
   --spacing: 0.25rem;
+  
+  /* Premium Design Tokens */
+  --dark-bg: #09090b;
+  --dark-surface: #18181b;
+  --dark-border: rgba(255, 255, 255, 0.1);
+  --glass: rgba(24, 24, 27, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  --text-primary: #f4f4f5;
+  --text-secondary: #a1a1aa;
+  --text-dim: #71717a;
 }
 
 [data-theme='dark'] {

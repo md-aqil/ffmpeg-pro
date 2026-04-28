@@ -65,24 +65,11 @@ const AudioPage = () => {
     if (!conversionResult) return;
     
     try {
-      const response = await fetch(`http://localhost:3001/api/download/${conversionResult.filename}`);
-      const blob = await response.blob();
-      
-      // Create download link
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = conversionResult.filename;
-      
-      // Trigger download
-      document.body.appendChild(link);
-      link.click();
-      
-      // Clean up
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      const { downloadFile } = await import('../services/api');
+      await downloadFile(conversionResult);
     } catch (err) {
       console.error('Failed to download file', err);
+      setToast({ message: 'Failed to download file', type: 'error' });
     }
   };
 
@@ -106,102 +93,84 @@ const AudioPage = () => {
     <div className="page-layout">
       <Header 
         selectedFile={selectedFiles.length > 0 ? selectedFiles[0] : null}
-        isConverting={false} // This would need to be passed from AudioConverter in a real implementation
+        isConverting={false}
         conversionResult={conversionResult}
         onConvert={handleConvert}
         onDownload={handleDownload}
+        activeConverter="audio"
       />
       {!isMobile && <LeftSidebar />}
-      <div className="converter-content main-area">
-        <div className="toolbar" bis_skin_checked="1">
-          <div className="toolbar-left" bis_skin_checked="1">
-            <div className="tool-group" bis_skin_checked="1">
-              <div className="tool-btn" bis_skin_checked="1">
-                <i className="ti ti-arrow-back-up"></i>
-              </div>
-              <div className="tool-btn" bis_skin_checked="1">
-                <i className="ti ti-arrow-forward-up"></i>
-              </div>
-            </div>
-            <div className="tool-separator" bis_skin_checked="1"></div>
-            {/* Status message replaced with Toast */}
+      <main className="main-area">
+        <div className="content-wrapper">
+          <div className="page-header">
+            <h1 className="page-title">Audio Studio</h1>
+            <p className="page-subtitle">Convert, extract, trim and mix audio with high fidelity.</p>
           </div>
-          <div className="toolbar-right" bis_skin_checked="1">
-            <div className="view-btn" bis_skin_checked="1">Fit Screen</div>
-            <div className="view-btn" bis_skin_checked="1">100%</div>
-            <div className="tool-btn" bis_skin_checked="1">
-              <i className="ti ti-grid-3x3"></i>
+          
+          {/* Toast Notification */}
+          {toast && (
+            <Toast 
+              message={toast.message} 
+              type={toast.type} 
+              onClose={() => setToast(null)} 
+            />
+          )}
+          
+          {/* Upload Section - Visible only when no files are selected */}
+          {selectedFiles.length === 0 && (
+            <div 
+              className={`premium-upload-area ${isDragOver ? 'drag-over' : ''}`}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setIsDragOver(true);
+              }}
+              onDragEnter={(e) => {
+                e.preventDefault();
+                setIsDragOver(true);
+              }}
+              onDragLeave={(e) => {
+                e.preventDefault();
+                setIsDragOver(false);
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                setIsDragOver(false);
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                  handleFilesSelect(files);
+                }
+              }}
+            >
+              <div className="upload-icon">🎵</div>
+              <h3>Select Audio</h3>
+              <p>Drag and drop audio files here or click to browse</p>
+              <button className="premium-button primary" onClick={() => document.getElementById('file-input').click()}>
+                Browse Files
+              </button>
+              <div className="format-pills">
+                {['MP3', 'WAV', 'FLAC', 'AAC', 'OGG', 'M4A'].map(fmt => (
+                  <span key={fmt} className="format-pill">{fmt}</span>
+                ))}
+              </div>
             </div>
-            <div className="tool-btn" bis_skin_checked="1">
-              <i className="ti ti-ruler"></i>
-            </div>
-          </div>
-        </div>
-
-        <h4 className='text-center my-6'>Audio Converter</h4>
-        
-        {/* Toast Notification */}
-        {toast && (
-          <Toast 
-            message={toast.message} 
-            type={toast.type} 
-            onClose={() => setToast(null)} 
-          />
-        )}
-        
-        {/* Upload Section - Visible only when no files are selected */}
-        {selectedFiles.length === 0 && (
-          <div 
-            className={`upload-section-main ${isDragOver ? 'drag-over' : ''}`}
-            onDragOver={(e) => {
-              e.preventDefault();
-              setIsDragOver(true);
-            }}
-            onDragEnter={(e) => {
-              e.preventDefault();
-              setIsDragOver(true);
-            }}
-            onDragLeave={(e) => {
-              e.preventDefault();
-              setIsDragOver(false);
-            }}
-            onDrop={(e) => {
-              e.preventDefault();
-              setIsDragOver(false);
-              
-              const files = e.dataTransfer.files;
-              if (files.length > 0) {
-                handleFilesSelect(files);
+          )}
+          
+          <AudioConverter 
+            ref={audioConverterRef}
+            onConversionComplete={handleConversionComplete} 
+            selectedFiles={selectedFiles}
+            onStatusUpdate={(upload, conversion) => {
+              if (upload && upload.message && upload.type !== 'success') {
+                setToast({ message: upload.message, type: upload.type || 'info' });
+              }
+              if (conversion && conversion.message && conversion.type === 'success') {
+                setToast({ message: conversion.message, type: 'success' });
               }
             }}
-          >
-            <h3>Upload Audio</h3>
-            <p>Drag & drop your audio files here</p>
-            <p>OR</p>
-            <button onClick={() => document.getElementById('file-input').click()}>
-              Browse Files
-            </button>
-            <p className="file-types-info">
-              Supported formats: MP3, WAV, FLAC, AAC, OGG, M4A
-            </p>
-          </div>
-        )}
-        
-        <AudioConverter 
-          ref={audioConverterRef}
-          onConversionComplete={handleConversionComplete} 
-          selectedFiles={selectedFiles}
-          onStatusUpdate={(upload, conversion) => {
-            // Show toast notifications for status updates
-            if (upload && upload.message) {
-              setToast({ message: upload.message, type: upload.type || 'info' });
-            }
-            if (conversion && conversion.message) {
-              setToast({ message: conversion.message, type: conversion.type || 'info' });
-            }
-          }}
-        />
-      </div>
+          />
+        </div>
+      </main>
       {!isMobile && (
         <RightSidebar 
           activeConverter="audio" 

@@ -58,24 +58,11 @@ const VideoPage = () => {
     if (!conversionResult) return;
     
     try {
-      const response = await fetch(`http://localhost:3001/api/download/${conversionResult.filename}`);
-      const blob = await response.blob();
-      
-      // Create download link
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = conversionResult.filename;
-      
-      // Trigger download
-      document.body.appendChild(link);
-      link.click();
-      
-      // Clean up
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      const { downloadFile } = await import('../services/api');
+      await downloadFile(conversionResult);
     } catch (err) {
       console.error('Failed to download file', err);
+      setToast({ message: 'Failed to download file', type: 'error' });
     }
   };
 
@@ -101,81 +88,72 @@ const VideoPage = () => {
         activeConverter="video"
       />
       {!isMobile && <LeftSidebar />}
-      <div className="converter-content main-area">
-         <div className="toolbar" bis_skin_checked="1">
-          <div className="toolbar-left" bis_skin_checked="1">
-            {/* Static notification removed - now using Toast */}
+      <main className="main-area">
+        <div className="content-wrapper">
+          <div className="page-header">
+            <h1 className="page-title">Video Studio</h1>
+            <p className="page-subtitle">Transform your videos with professional-grade processing tools.</p>
           </div>
-          <div className="toolbar-right" bis_skin_checked="1">
-            <div className="view-btn" bis_skin_checked="1">Fit Screen</div>
-            <div className="view-btn" bis_skin_checked="1">100%</div>
-            <div className="tool-btn" bis_skin_checked="1">
-              <i className="ti ti-grid-3x3"></i>
-            </div>
-            <div className="tool-btn" bis_skin_checked="1">
-              <i className="ti ti-ruler"></i>
-            </div>
-          </div>
-        </div>
-
-        <h4 className='text-center my-6'>Video Converter</h4>
-        
-        {/* Toast Notification */}
-        {toast && (
-          <Toast 
-            message={toast.message} 
-            type={toast.type} 
-            onClose={() => setToast(null)} 
-          />
-        )}
-         
-        {/* Upload Section - Visible only when no file is selected */}
-        {!selectedFile && (
-          <div 
-            className={`upload-section-main ${isDragOver ? 'drag-over' : ''}`}
-            onDragOver={(e) => {
-              e.preventDefault();
-              setIsDragOver(true);
-            }}
-            onDragEnter={(e) => {
-              e.preventDefault();
-              setIsDragOver(true);
-            }}
-            onDragLeave={(e) => {
-              e.preventDefault();
-              setIsDragOver(false);
-            }}
-            onDrop={(e) => {
-              e.preventDefault();
-              setIsDragOver(false);
-              
-              const files = e.dataTransfer.files;
-              if (files.length > 0) {
-                const file = files[0];
-                if (file.type.startsWith('video/')) {
-                  handleFileSelect(file);
+          
+          {/* Toast Notification */}
+          {toast && (
+            <Toast 
+              message={toast.message} 
+              type={toast.type} 
+              onClose={() => setToast(null)} 
+            />
+          )}
+          
+          {/* Upload Section - Visible only when no file is selected */}
+          {!selectedFile && (
+            <div 
+              className={`premium-upload-area ${isDragOver ? 'drag-over' : ''}`}
+              onDragOver={(e) => {
+                e.preventDefault();
+                setIsDragOver(true);
+              }}
+              onDragEnter={(e) => {
+                e.preventDefault();
+                setIsDragOver(true);
+              }}
+              onDragLeave={(e) => {
+                e.preventDefault();
+                setIsDragOver(false);
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                setIsDragOver(false);
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                  const file = files[0];
+                  if (file.type.startsWith('video/')) {
+                    handleFileSelect(file);
+                  }
                 }
-              }
-            }}
-          >
-            <h3>Upload Video</h3>
-            <p>Drag & drop your video here</p>
-            <p>OR</p>
-            <button onClick={() => document.getElementById('file-input').click()}>
-              Browse File
-            </button>
-            <p className="file-types-info">
-              Supported formats: MP4, AVI, MOV, MKV, WMV, FLV
-            </p>
-          </div>
-        )}
-         
-        <VideoConverter 
-          ref={videoConverterRef}
-          onConversionComplete={handleConversionComplete} 
-          selectedFile={selectedFile}
-        />
-      </div>
+              }}
+            >
+              <div className="upload-icon">🎬</div>
+              <h3>Select Video</h3>
+              <p>Drag and drop video here or click to browse</p>
+              <button className="premium-button primary" onClick={() => document.getElementById('file-input').click()}>
+                Browse Files
+              </button>
+              <div className="format-pills">
+                {['MP4', 'AVI', 'MOV', 'MKV', 'WMV', 'FLV'].map(fmt => (
+                  <span key={fmt} className="format-pill">{fmt}</span>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          <VideoConverter 
+            ref={videoConverterRef}
+            onConversionComplete={handleConversionComplete} 
+            selectedFile={selectedFile}
+          />
+        </div>
+      </main>
       {!isMobile && (
         <RightSidebar 
           activeConverter="video" 

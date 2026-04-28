@@ -1,0 +1,28 @@
+{
+  "name": "ffmpeg-multimedia-suite",
+  "version": "1.0.0",
+  "description": "FFmpeg Multimedia Suite - Full Stack Application",
+  "main": "server/server.js",
+  "scripts": {
+    "build": "cd client && npm install && npm run build",
+    "start": "NODE_ENV=production node server/server.js",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && npm start",
+    "client": "cd client && npm start",
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install"
+  },
+  "keywords": [
+    "ffmpeg",
+    "video",
+    "converter",
+    "multimedia"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

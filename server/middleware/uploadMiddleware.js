@@ -59,7 +59,7 @@ const upload = multer({
   }
 });
 
-console.log('Upload middleware configured with 50MB file size limit');
+console.log('Upload middleware configured with 200MB file size limit');
 
 // Error handling middleware for multer
 const handleUploadError = (err, req, res, next) => {
@@ -70,7 +70,7 @@ const handleUploadError = (err, req, res, next) => {
     if (err.code === 'LIMIT_FILE_SIZE') {
       return res.status(400).json({
         success: false,
-        error: 'File size exceeds the limit of 50MB'
+        error: 'File size exceeds the limit of 200MB'
       });
     }
   } else if (err) {

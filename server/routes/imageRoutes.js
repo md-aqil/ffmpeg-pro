@@ -27,14 +27,24 @@ router.post('/optimize', imageController.optimizeImage);
 
 // POST /api/batch/images
 router.post('/batch/images', imageController.batchImages);
+router.post('/batch', imageController.batchImages);
 
 // GET /api/image/metadata/:filename
 router.get('/metadata/:filename', imageController.getImageMetadata);
+
+// GET /api/image/formats
+router.get('/formats', imageController.getImageFormats);
 
 // POST /api/image/watermark
 router.post('/watermark', imageController.watermarkImage);
 
 // POST /api/image/advancedEffects
 router.post('/advancedEffects', imageController.applyAdvancedImageEffects);
+
+// POST /api/image/pipeline - Process multiple operations in sequence
+router.post('/pipeline', imageController.processPipeline);
+
+// POST /api/image/fast-preview - Process a fast preview of operations
+router.post("/fast-preview", imageController.generateFastPreview);
 
 module.exports = router;

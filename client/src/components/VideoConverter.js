@@ -1,5 +1,5 @@
 import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
-import { uploadFile, getSupportedFormats, convertFile, downloadFile, getFileMetadata } from '../services/api';
+import { uploadFile, getSupportedFormats, convertFile, getFileMetadata } from '../services/api';
 import './VideoConverter.css';
 
 const VideoConverter = forwardRef(({ onConversionComplete, selectedFile }, ref) => {
@@ -14,7 +14,7 @@ const VideoConverter = forwardRef(({ onConversionComplete, selectedFile }, ref) 
   const [manualBitrate, setManualBitrate] = useState('');
   const [supportedFormats, setSupportedFormats] = useState([]);
   const [isConverting, setIsConverting] = useState(false);
-  const [convertedFile, setConvertedFile] = useState(null);
+  const [, setConvertedFile] = useState(null);
   const [progress, setProgress] = useState(0);
   const [fileMetadata, setFileMetadata] = useState(null);
 
@@ -24,6 +24,7 @@ const VideoConverter = forwardRef(({ onConversionComplete, selectedFile }, ref) 
   }));
 
   // Listen for custom event to trigger conversion
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const handleTriggerConvert = (event) => {
       if (event.detail.action === 'convert') {
@@ -35,7 +36,35 @@ const VideoConverter = forwardRef(({ onConversionComplete, selectedFile }, ref) 
     return () => {
       window.removeEventListener('triggerConvert', handleTriggerConvert);
     };
-  }, [fileId, fileName, outputFormat, quality, width, height, manualBitrate]);
+  }, [fileId, fileName, outputFormat, quality, width, height, manualBitrate]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Real-time progress updates via SSE
+  useEffect(() => {
+    if (!isConverting || !fileId) return;
+
+    const API_BASE_URL = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3001/api';
+    const eventSource = new EventSource(`${API_BASE_URL}/progress/${fileId}`);
+
+    eventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'progress') {
+          setProgress(Math.round(data.percent));
+        }
+      } catch (error) {
+        console.error('Error parsing SSE message:', error);
+      }
+    };
+
+    eventSource.onerror = (error) => {
+      console.error('SSE Error:', error);
+      eventSource.close();
+    };
+
+    return () => {
+      eventSource.close();
+    };
+  }, [isConverting, fileId]);
 
   // Fetch supported formats on component mount
   useEffect(() => {
@@ -58,6 +87,7 @@ const VideoConverter = forwardRef(({ onConversionComplete, selectedFile }, ref) 
   }, []);
 
   // Handle file selection and auto-upload
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (selectedFile) {
       handleFileUpload(selectedFile);
@@ -116,14 +146,8 @@ const VideoConverter = forwardRef(({ onConversionComplete, selectedFile }, ref) 
       setConversionStatus({ type: 'converting', message: 'Converting file...' });
       setProgress(0);
       
-      // Simulate progress for better UX
-      const progressInterval = setInterval(() => {
-        setProgress(prev => Math.min(prev + 5, 95));
-      }, 200);
-      
       const response = await convertFile(fileId, fileName, outputFormat, quality, width, height, manualBitrate);
       
-      clearInterval(progressInterval);
       setProgress(100);
       
       if (response.success) {
@@ -197,169 +221,143 @@ const VideoConverter = forwardRef(({ onConversionComplete, selectedFile }, ref) 
   const metadataDisplay = getVideoMetadataDisplay();
 
   return (
-    <section className="video-converter">
-      <div className="converter-container">
-      
-     
-          <div className="">
+    <div className="video-converter-card glass-panel">
+      {selectedFile && (
+        <div className="converter-grid">
+          {/* Settings Section */}
+          <div className="settings-section">
+            <h3 className="section-title">Conversion Settings</h3>
             
-            {/* Conversion Options */}
-            {fileId && (
-              <div className="conversion-options">
-                <div className="option-group">
-                  <label htmlFor="format-select">Output Format:</label>
-                  <select
-                    id="format-select"
-                    value={outputFormat}
-                    onChange={(e) => setOutputFormat(e.target.value)}
-                    className="option-select"
-                  >
-                    {supportedFormats.map(format => (
-                      <option key={format} value={format}>{format.toUpperCase()}</option>
-                    ))}
-                  </select>
-                </div>
-                
-                <div className="option-group">
-                  <label htmlFor="quality-select">Quality:</label>
-                  <select
-                    id="quality-select"
-                    value={quality}
-                    onChange={(e) => setQuality(e.target.value)}
-                    className="option-select"
-                  >
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
-                    <option value="ultra">Ultra</option>
-                  </select>
-                </div>
-                
-                <div className="option-group">
-                  <label htmlFor="width-input">Width (optional):</label>
-                  <input
-                    id="width-input"
-                    type="number"
-                    value={width}
-                    onChange={(e) => setWidth(e.target.value)}
-                    className="option-input"
-                    placeholder="Enter width"
-                  />
-                </div>
-                
-                <div className="option-group">
-                  <label htmlFor="height-input">Height (optional):</label>
-                  <input
-                    id="height-input"
-                    type="number"
-                    value={height}
-                    onChange={(e) => setHeight(e.target.value)}
-                    className="option-input"
-                    placeholder="Enter height"
-                  />
-                </div>
-
-                <div className="option-group">
-                  <label htmlFor="bitrate-input">Bitrate (optional):</label>
-                  <input
-                    id="bitrate-input"
-                    type="number"
-                    value={manualBitrate}
-                    onChange={(e) => setManualBitrate(e.target.value)}
-                    className="option-input"
-                    placeholder="Enter bitrate in kbps"
-                  />
-                </div>
-                
-                <button
-                  className={`convert-button ${isConverting ? 'converting' : ''}`}
-                  onClick={handleConvert}
-                  disabled={isConverting}
+            <div className="options-grid">
+              <div className="option-item">
+                <label>Output Format</label>
+                <select
+                  value={outputFormat}
+                  onChange={(e) => setOutputFormat(e.target.value)}
+                  className="premium-select"
                 >
-                  {isConverting ? 'Converting...' : 'Convert Video'}
-                </button>
-                
-                {/* Progress Bar */}
-                {isConverting && (
-                  <div className="progress-container">
-                    <div className="progress-bar">
-                      <div
-                        className="progress-fill"
-                        style={{ width: `${progress}%` }}
-                      ></div>
-                    </div>
-                    <span className="progress-text">{progress}%</span>
-                  </div>
-                )}
+                  {supportedFormats.map(format => (
+                    <option key={format} value={format}>{format.toUpperCase()}</option>
+                  ))}
+                </select>
               </div>
-            )}
-          </div>
 
-          {/* Left column - File Details */}
-          <div className="">
-            {fileId && metadataDisplay && (
-              <div className="file-preview">
-                <h3>File Information</h3>
-                <div className="metadata-grid">
-                  <div className="metadata-item">
-                    <span className="metadata-label">Duration:</span>
-                    <span className="metadata-value">{metadataDisplay.duration}</span>
+              <div className="option-item">
+                <label>Preset Quality</label>
+                <select
+                  value={quality}
+                  onChange={(e) => setQuality(e.target.value)}
+                  className="premium-select"
+                >
+                  <option value="low">Low (Fast)</option>
+                  <option value="medium">Medium (Standard)</option>
+                  <option value="high">High (High Quality)</option>
+                  <option value="ultra">Ultra (Original/Best)</option>
+                </select>
+              </div>
+
+              <div className="option-item">
+                <label>Width (px)</label>
+                <input
+                  type="number"
+                  value={width}
+                  onChange={(e) => setWidth(e.target.value)}
+                  placeholder="Auto"
+                  className="premium-input"
+                />
+              </div>
+
+              <div className="option-item">
+                <label>Height (px)</label>
+                <input
+                  type="number"
+                  value={height}
+                  onChange={(e) => setHeight(e.target.value)}
+                  placeholder="Auto"
+                  className="premium-input"
+                />
+              </div>
+
+              <div className="option-item full-width">
+                <label>Manual Bitrate (kbps)</label>
+                <input
+                  type="number"
+                  value={manualBitrate}
+                  onChange={(e) => setManualBitrate(e.target.value)}
+                  placeholder="Keep Original"
+                  className="premium-input"
+                />
+              </div>
+            </div>
+
+            <div className="status-container">
+              {uploadStatus && uploadStatus.type !== 'success' && (
+                <div className={`status-pill ${uploadStatus.type}`}>
+                  {uploadStatus.message}
+                </div>
+              )}
+              
+              {conversionStatus && (
+                <div className={`status-pill ${conversionStatus.type}`}>
+                  {conversionStatus.message}
+                </div>
+              )}
+
+              {isConverting && (
+                <div className="progress-wrapper">
+                  <div className="progress-label">
+                    <span>Converting...</span>
+                    <span>{progress}%</span>
                   </div>
-                  <div className="metadata-item">
-                    <span className="metadata-label">File Size:</span>
-                    <span className="metadata-value">{metadataDisplay.size}</span>
-                  </div>
-                  <div className="metadata-item">
-                    <span className="metadata-label">Bitrate:</span>
-                    <span className="metadata-value">{metadataDisplay.bitrate}</span>
-                  </div>
-                  <div className="metadata-item">
-                    <span className="metadata-label">Video Codec:</span>
-                    <span className="metadata-value">{metadataDisplay.videoCodec}</span>
-                  </div>
-                  <div className="metadata-item">
-                    <span className="metadata-label">Resolution:</span>
-                    <span className="metadata-value">{metadataDisplay.resolution}</span>
-                  </div>
-                  <div className="metadata-item">
-                    <span className="metadata-label">Audio Codec:</span>
-                    <span className="metadata-value">{metadataDisplay.audioCodec}</span>
-                  </div>
-                  <div className="metadata-item">
-                    <span className="metadata-label">Sample Rate:</span>
-                    <span className="metadata-value">{metadataDisplay.sampleRate}</span>
+                  <div className="premium-progress-bg">
+                    <div className="premium-progress-fill" style={{ width: `${progress}%` }}></div>
                   </div>
                 </div>
+              )}
+            </div>
+          </div>
+
+          {/* Info Section */}
+          <div className="info-section">
+            <h3 className="section-title">File Details</h3>
+            
+            {metadataDisplay ? (
+              <div className="metadata-list">
+                <div className="meta-row">
+                  <span>Name</span>
+                  <span className="value">{selectedFile.name}</span>
+                </div>
+                <div className="meta-row">
+                  <span>Duration</span>
+                  <span className="value">{metadataDisplay.duration}</span>
+                </div>
+                <div className="meta-row">
+                  <span>Format</span>
+                  <span className="value">{metadataDisplay.videoCodec.toUpperCase()} / {outputFormat.toUpperCase()}</span>
+                </div>
+                <div className="meta-row">
+                  <span>Resolution</span>
+                  <span className="value">{metadataDisplay.resolution}</span>
+                </div>
+                <div className="meta-row">
+                  <span>Size</span>
+                  <span className="value">{metadataDisplay.size}</span>
+                </div>
+                <div className="meta-row">
+                  <span>Audio</span>
+                  <span className="value">{metadataDisplay.audioCodec}</span>
+                </div>
+              </div>
+            ) : (
+              <div className="metadata-loading">
+                <div className="spinner"></div>
+                <p>Analyzing video...</p>
               </div>
             )}
           </div>
-          
-          {/* Center column - Conversion Status and Options */}
-          <div className="">
-            {/* Upload Status */}
-            {uploadStatus && (
-              <div className={`status-message ${uploadStatus.type}`}>
-                {uploadStatus.message}
-              </div>
-            )}
-            
-            {/* Conversion Status */}
-            {conversionStatus && (
-              <div className={`status-message ${conversionStatus.type}`}>
-                {conversionStatus.message}
-              </div>
-            )}
-            
-            {selectedFile && (
-              <div className="selected-file-info">
-                <p><strong>Selected File:</strong> {selectedFile.name}</p>
-              </div>
-            )}
-          </div>
-          
-       
         </div>
-    </section>
+      )}
+    </div>
   );
 });
 

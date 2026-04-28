@@ -1,12 +1,15 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:3001/api';
+// Use relative URL for production (served from same origin as backend)
+// In development, the proxy in package.json handles this
+const API_BASE_URL = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3001/api';
 
 // Create axios instance with default config
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 30000, // 30 seconds timeout
+  timeout: 300000, // 5 minutes timeout for large file conversions
 });
+
 
 /**
  * Uploads a media file (video or audio) to the server
@@ -41,6 +44,20 @@ export const getSupportedFormats = async () => {
     return response.data;
   } catch (error) {
     console.error('Error fetching formats:', error);
+    throw error;
+  }
+};
+
+/**
+ * Gets the supported image formats from the server
+ * @returns {Promise} - Promise that resolves with the image formats response
+ */
+export const getSupportedImageFormats = async () => {
+  try {
+    const response = await apiClient.get('/image/formats');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching supported image formats:', error);
     throw error;
   }
 };
@@ -493,10 +510,36 @@ export const applyAdvancedImageEffects = async (fileId, fileName, effects) => {
       fileName,
       effects
     });
-    
+
     return response.data;
   } catch (error) {
     console.error('Error applying advanced image effects:', error);
+    throw error;
+  }
+};
+
+/**
+ * Processes an image through a pipeline of operations
+ * @param {string} fileId - The ID of the uploaded file
+ * @param {string} fileName - The original name of the uploaded file
+ * @param {Array} operations - Array of operation objects with type and parameters
+ * @param {string} outputFormat - Desired output format (optional)
+ * @param {number} quality - Quality setting 1-100 (optional)
+ * @returns {Promise} - Promise that resolves with the pipeline response
+ */
+export const processImagePipeline = async (fileId, fileName, operations, outputFormat = 'png', quality = 80) => {
+  try {
+    const response = await apiClient.post('/image/pipeline', {
+      fileId,
+      fileName,
+      operations,
+      outputFormat,
+      quality
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error processing image pipeline:', error);
     throw error;
   }
 };

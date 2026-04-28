@@ -40,6 +40,7 @@ const uploadFile = (req, res) => {
       success: true,
       fileId: fileInfo.fileId,
       fileName: fileInfo.originalName,
+      serverFileName: fileInfo.fileName, // Added this
       size: fileInfo.formattedSize,
       message: 'File uploaded successfully'
     });
