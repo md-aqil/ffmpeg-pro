@@ -1,9 +1,12 @@
 server {
-    listen 80;
-    listen [::]:80;
-    server_name 187.127.154.55; # Update with your domain later
-
-    location / {
+    listen 8080;
+    listen [::]:8080;
+    server_name 187.127.154.55;
+    
+    # Ensure it doesn't catch traffic for other domains
+    if ($host != "187.127.154.55") {
+        return 444;
+    }
         proxy_pass http://127.0.0.1:3001;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
