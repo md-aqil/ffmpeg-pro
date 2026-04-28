@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import Toast from '../components/Toast';
 import BeforeAfterSlider from '../components/studio/BeforeAfterSlider';
-import apiClient, { batchProcessImages, downloadFile, getImageMetadata, getSupportedImageFormats, processImagePipeline, uploadFile } from '../services/api';
+import apiClient, { API_BASE_URL, batchProcessImages, downloadFile, getImageMetadata, getSupportedImageFormats, processImagePipeline, uploadFile } from '../services/api';
 import { buildBatchProcessRequest, getBatchQueueKey, prependSelectedBatchFile } from './image-studio/batchWorkflow';
 import { formatBytes, formatDimension, truncateTwoWords } from './image-studio/formatters';
 import StudioCanvas from './image-studio/StudioCanvas';
@@ -808,7 +808,7 @@ const ImagePage = () => {
     <div className={`watermark-preview position-${activeWatermark.position}`} style={{ opacity: activeWatermark.opacity / 100 }}>
       {activeWatermark.useImage && activeWatermark.imageFileId ? (
         <img
-          src={`http://localhost:3001/uploads/${activeWatermark.imageFileId}`}
+          src={`${API_BASE_URL.replace('/api', '')}/uploads/${activeWatermark.imageFileId}`}
           alt="Watermark Logo"
           className="wm-image-preview"
         />

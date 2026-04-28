@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Use relative URL for production (served from same origin as backend)
 // In development, the proxy in package.json handles this
-const API_BASE_URL = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3001/api';
+export const API_BASE_URL = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3001/api';
 
 // Create axios instance with default config
 const apiClient = axios.create({
@@ -21,11 +21,7 @@ export const uploadFile = async (file) => {
   formData.append('file', file);
   
   try {
-    const response = await apiClient.post('/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    const response = await apiClient.post('/upload', formData);
     
     return response.data;
   } catch (error) {

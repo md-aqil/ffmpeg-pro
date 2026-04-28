@@ -1,5 +1,5 @@
 import React, { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
-import { uploadFile, getSupportedFormats, convertFile, getFileMetadata } from '../services/api';
+import { uploadFile, getSupportedFormats, convertFile, getFileMetadata, API_BASE_URL } from '../services/api';
 import './VideoConverter.css';
 
 const VideoConverter = forwardRef(({ onConversionComplete, selectedFile }, ref) => {
@@ -42,7 +42,6 @@ const VideoConverter = forwardRef(({ onConversionComplete, selectedFile }, ref) 
   useEffect(() => {
     if (!isConverting || !fileId) return;
 
-    const API_BASE_URL = process.env.NODE_ENV === 'production' ? '/api' : 'http://localhost:3001/api';
     const eventSource = new EventSource(`${API_BASE_URL}/progress/${fileId}`);
 
     eventSource.onmessage = (event) => {

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { uploadFile, processImagePipeline, downloadFile } from '../services/api';
+import { uploadFile, processImagePipeline, downloadFile, API_BASE_URL } from '../services/api';
 
 const PIPELINE_META = {
   resize: {
@@ -91,8 +91,7 @@ const formatBytes = (bytes) => {
 };
 
 const buildConvertedUrl = (filename) => {
-  const base = process.env.NODE_ENV === 'production' ? '' : 'http://localhost:3001';
-  return `${base}/converted/${filename}`;
+  return `${API_BASE_URL.replace('/api', '')}/converted/${filename}`;
 };
 
 const StudioPage = () => {

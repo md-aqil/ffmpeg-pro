@@ -1,7 +1,7 @@
 // client/src/components/ImageConverter.js - Pipeline-based Image Editor
 import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import './ImageConverter.css';
-import { processImagePipeline } from '../services/api';
+import { processImagePipeline, uploadFile, API_BASE_URL } from '../services/api';
 
 // Transformation card component
 const TransformationCard = ({ operation, index, onToggle, onUpdate, onDelete, onDragStart, isDragging }) => {
@@ -446,12 +446,7 @@ const ImageConverter = forwardRef(({ onConversionComplete, selectedFile, onProgr
         currentOperation: 'Uploading file...'
       });
 
-      const uploadResponse = await fetch('http://localhost:3001/api/upload', {
-        method: 'POST',
-        body: formData
-      });
-
-      const uploadData = await uploadResponse.json();
+      const uploadData = await uploadFile(selectedFile);
 
       if (!uploadData.success) {
         throw new Error(uploadData.error || 'Upload failed');

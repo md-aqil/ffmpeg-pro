@@ -8,7 +8,7 @@ const DANGEROUS_EXTENSIONS = [
 ];
 
 // Supported video, audio, and image formats
-const SUPPORTED_FORMATS = ['mp4', 'avi', 'mov', 'webm', 'mp3', 'wav', 'aac', 'flac', 'ogg', 'm4a', 'wma', 'mkv', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'tiff'];
+const SUPPORTED_FORMATS = ['mp4', 'avi', 'mov', 'webm', 'mp3', 'wav', 'aac', 'flac', 'ogg', 'm4a', 'wma', 'mkv', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'tiff', 'avif', 'bmp'];
 
 // Configure storage
 const storage = multer.diskStorage({
