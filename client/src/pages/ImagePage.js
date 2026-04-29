@@ -740,7 +740,12 @@ const ImagePage = ({ theme, setTheme }) => {
       if (includeAiMetadata && aiMetadata) {
         await downloadWithMetadata(filename, aiMetadata);
       } else {
-        await downloadFile(filename);
+        let displayFilename = filename;
+        if (!isBatchMode && aiMetadata?.suggestedFilename) {
+          const extension = outputFormat || 'jpg';
+          displayFilename = `${aiMetadata.suggestedFilename}.${extension}`;
+        }
+        await downloadFile(filename, displayFilename);
       }
       showToast('Download started.', 'success');
     } catch (error) {

@@ -93,7 +93,7 @@ export const convertFile = async (fileId, fileName, outputFormat, quality, width
  * @param {string} filename - The name of the file to download
  * @returns {Promise} - Promise that resolves with the download response
  */
-export const downloadFile = async (filename) => {
+export const downloadFile = async (filename, displayFilename) => {
   try {
     const response = await apiClient.get(`/download/${filename}`, {
       responseType: 'blob',
@@ -103,7 +103,7 @@ export const downloadFile = async (filename) => {
     const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', filename);
+    link.setAttribute('download', displayFilename || filename);
     
     // Trigger download
     document.body.appendChild(link);

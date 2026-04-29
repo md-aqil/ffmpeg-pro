@@ -13,6 +13,8 @@ const ImageFileInfoCard = ({
   formatBytes,
   formatDimension,
 }) => {
+  const [isAiExpanded, setIsAiExpanded] = React.useState(true);
+
   return (
     <section className="inspector-card">
       <div className="inspector-card-title">File Info</div>
@@ -75,22 +77,35 @@ const ImageFileInfoCard = ({
 
           {aiMetadata && (
             <div className="ai-metadata-section mt-4 pt-4 border-t border-white/10">
-              <div className="text-xs font-semibold text-blue-400 mb-2 flex items-center gap-1">
-                <span className="material-symbols-outlined text-sm">auto_awesome</span>
-                AI INSIGHTS
-              </div>
-              <div className="metadata-row">
-                <span>Suggested Name</span>
-                <strong className="text-blue-200">{aiMetadata.suggestedFilename}</strong>
-              </div>
-              <div className="metadata-row">
-                <span>AI Title</span>
-                <strong className="italic">"{aiMetadata.title}"</strong>
-              </div>
-              <div className="metadata-row ai-row-stack">
-                <span>ALT Text</span>
-                <p className="ai-text-preview">{aiMetadata.altText}</p>
-              </div>
+              <button 
+                className="flex items-center justify-between w-full text-left mb-2 group hover:opacity-80 transition-opacity"
+                onClick={() => setIsAiExpanded(!isAiExpanded)}
+              >
+                <div className="text-xs font-semibold text-blue-400 flex items-center gap-1">
+                  <span className="material-symbols-outlined text-sm">auto_awesome</span>
+                  AI INSIGHTS
+                </div>
+                <span className={`material-symbols-outlined text-sm text-white/40 transition-transform ${isAiExpanded ? 'rotate-180' : ''}`}>
+                  expand_more
+                </span>
+              </button>
+              
+              {isAiExpanded && (
+                <div className="ai-content-fade-in space-y-2">
+                  <div className="metadata-row">
+                    <span>Suggested Name</span>
+                    <strong className="text-blue-200">{aiMetadata.suggestedFilename}</strong>
+                  </div>
+                  <div className="metadata-row">
+                    <span>AI Title</span>
+                    <strong className="italic">"{aiMetadata.title}"</strong>
+                  </div>
+                  <div className="metadata-row ai-row-stack">
+                    <span>ALT Text</span>
+                    <p className="ai-text-preview">{aiMetadata.altText}</p>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
