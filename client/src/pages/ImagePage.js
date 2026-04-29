@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import Toast from '../components/Toast';
 import BeforeAfterSlider from '../components/studio/BeforeAfterSlider';
-import apiClient, { API_BASE_URL, batchProcessImages, downloadFile, getImageMetadata, getSupportedImageFormats, processImagePipeline, uploadFile } from '../services/api';
+import apiClient, { API_BASE_URL, analyzeImageWithAI, batchProcessImages, downloadFile, downloadWithMetadata, getImageMetadata, getSupportedImageFormats, processImagePipeline, uploadFile } from '../services/api';
 import { buildBatchProcessRequest, getBatchQueueKey, prependSelectedBatchFile } from './image-studio/batchWorkflow';
 import { formatBytes, formatDimension, truncateTwoWords } from './image-studio/formatters';
 import StudioCanvas from './image-studio/StudioCanvas';
@@ -15,13 +15,15 @@ import './ImagePage.css';
 import OperationCard from '../components/image-studio/OperationCard';
 import StudioTopNav from '../components/image-studio/StudioTopNav';
 
-const ImagePage = () => {
-  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
+const ImagePage = ({ theme, setTheme }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
   const [renderedPreviewUrl, setRenderedPreviewUrl] = useState('');
    const [imageSize, setImageSize] = useState({ width: null, height: null });
    const [metadata, setMetadata] = useState(null);
+   const [aiMetadata, setAiMetadata] = useState(null);
+   const [includeAiMetadata, setIncludeAiMetadata] = useState(false);
+   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
    // Local UI state (not in reducer)
    const [cropAspectRatio, setCropAspectRatio] = useState(null);
@@ -183,7 +185,12 @@ const ImagePage = () => {
 
     const img = new Image();
     img.onload = () => {
-      setImageSize({ width: img.width, height: img.height });
+      const size = { width: img.width, height: img.height };
+      setImageSize(size);
+      if (!initialDimensionsSyncedRef.current) {
+        studio.initializePipeline(size);
+        initialDimensionsSyncedRef.current = true;
+      }
     };
     img.src = objectUrl;
 
@@ -282,6 +289,9 @@ const ImagePage = () => {
       setActiveOperation('resize');
       initialDimensionsSyncedRef.current = false;
       studio.setToast('Image loaded into the studio.', 'success');
+      
+      // Trigger AI Analysis
+      handleAiAnalysis(file);
     };
 
     const prependSelectedFileToBatchQueue = () => {
@@ -464,6 +474,27 @@ const ImagePage = () => {
         }
     }
   }, [pipeline, selectedFile, buildOperations, fastPreviewUrl]);
+
+  const handleAiAnalysis = async (file) => {
+    if (!file) return;
+    setIsAnalyzing(true);
+    setAiMetadata(null);
+    try {
+      const uploadResponse = await uploadFile(file);
+      if (uploadResponse?.success) {
+        const response = await analyzeImageWithAI(uploadResponse.fileId, uploadResponse.fileName || file.name);
+        if (response?.success) {
+          setAiMetadata(response.data);
+          showToast('AI analysis complete.', 'success');
+        }
+      }
+    } catch (error) {
+      console.error('AI Analysis failed:', error);
+      showToast('AI analysis failed.', 'error');
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
 
   const handleRender = async () => {
     if (isBatchMode) {
@@ -706,7 +737,11 @@ const ImagePage = () => {
     }
 
     try {
-      await downloadFile(filename);
+      if (includeAiMetadata && aiMetadata) {
+        await downloadWithMetadata(filename, aiMetadata);
+      } else {
+        await downloadFile(filename);
+      }
       showToast('Download started.', 'success');
     } catch (error) {
       console.error(error);
@@ -865,6 +900,8 @@ const ImagePage = () => {
            updateOperation={studio.updateOperation}
            imageSize={imageSize}
            OperationCard={OperationCard}
+           theme={theme}
+           onToggleTheme={handleThemeToggle}
          />
 
           <StudioCanvas
@@ -906,6 +943,8 @@ const ImagePage = () => {
                  selectedFile={selectedFile}
                  isBatchMode={isBatchMode}
                  metadata={metadata}
+                  aiMetadata={aiMetadata}
+                  isAnalyzing={isAnalyzing}
                  imageSize={imageSize}
                  onSingleMode={handleSingleMode}
                  onBatchMode={handleBatchMode}
@@ -957,6 +996,9 @@ const ImagePage = () => {
                  onDownload={handleDownload}
                  canDownloadResult={canDownloadResult}
                  onToggleComparison={() => studio.setIsComparisonVisible(!studio.isComparisonVisible)}
+                  includeAiMetadata={includeAiMetadata}
+                  onToggleAiMetadata={() => setIncludeAiMetadata(!includeAiMetadata)}
+                  aiMetadataAvailable={Boolean(aiMetadata)}
                />
 
                <ImageResultCard

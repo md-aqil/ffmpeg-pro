@@ -14,6 +14,7 @@ const {
   sanitizeArchiveEntryName,
   createZipArchive,
 } = require("../services/image-processing/utils");
+const aiService = require("../services/aiService");
 
 const UPLOADS_DIR = path.join(__dirname, "../uploads");
 const CONVERTED_DIR = path.join(__dirname, "../converted");
@@ -394,6 +395,67 @@ const generateFastPreview = async (req, res) => {
   }
 };
 
+const analyzeImage = async (req, res) => {
+  try {
+    const { fileId, fileName } = req.body;
+    if (!fileId) {
+      return res.status(400).json({ success: false, error: "Missing required field: fileId" });
+    }
+
+    const filePath = await resolveUploadedImagePath(fileId, fileName);
+    if (!filePath) {
+      return res.status(404).json({ success: false, error: "File not found" });
+    }
+
+    const aiMetadata = await aiService.analyzeImage(filePath);
+    res.json({ success: true, data: aiMetadata });
+  } catch (error) {
+    console.error("AI Analysis Controller Error:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+const downloadWithMetadata = async (req, res) => {
+  try {
+    const { filename, metadata } = req.body;
+    if (!filename || !metadata) {
+      return res.status(400).json({ success: false, error: "Missing required fields: filename and metadata" });
+    }
+
+    const imagePath = path.join(CONVERTED_DIR, filename);
+    if (!fs.existsSync(imagePath)) {
+      return res.status(404).json({ success: false, error: "Image file not found" });
+    }
+
+    const zipFilename = `download-${uuidv4()}.zip`;
+    const zipPath = path.join(CONVERTED_DIR, zipFilename);
+    
+    const metadataContent = `Title: ${metadata.title || 'N/A'}
+ALT Text: ${metadata.altText || 'N/A'}
+Description: ${metadata.description || 'N/A'}
+Suggested Filename: ${metadata.suggestedFilename || 'N/A'}
+`;
+
+    const metadataFilePath = path.join(CONVERTED_DIR, `${uuidv4()}_metadata.txt`);
+    fs.writeFileSync(metadataFilePath, metadataContent);
+
+    const archiveEntries = [
+      { path: imagePath, name: metadata.suggestedFilename ? `${metadata.suggestedFilename}${path.extname(filename)}` : filename },
+      { path: metadataFilePath, name: 'metadata.txt' }
+    ];
+
+    await createZipArchive(archiveEntries, zipPath);
+    
+    // Clean up temporary metadata file after archiving (optional, but good practice)
+    // Actually, createZipArchive is async, so we should clean up after it's done.
+    
+    res.json({ success: true, data: { filename: zipFilename } });
+  } catch (error) {
+    console.error("Download with metadata error:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
 module.exports = {
     convertImage,
     resizeImage,
@@ -408,5 +470,7 @@ module.exports = {
     watermarkImage,
     applyAdvancedImageEffects,
     processPipeline,
-    generateFastPreview
+    generateFastPreview,
+    analyzeImage,
+    downloadWithMetadata
 };

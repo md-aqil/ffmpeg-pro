@@ -19,6 +19,9 @@ const ExportSettingsCard = ({
   canDownloadResult,
   onToggleComparison,
   enabledOperations = [],
+  includeAiMetadata,
+  onToggleAiMetadata,
+  aiMetadataAvailable,
 }) => {
   return (
     <section className="inspector-card">
@@ -112,6 +115,20 @@ const ExportSettingsCard = ({
         <span className="material-symbols-outlined">compare</span>
         {canDownloadResult ? 'Before / After' : 'Render First to Compare'}
       </button>
+
+      {aiMetadataAvailable && (
+        <div className="ai-download-option mb-3">
+          <label className="checkbox-container">
+            <input 
+              type="checkbox" 
+              checked={includeAiMetadata} 
+              onChange={onToggleAiMetadata}
+            />
+            <span className="checkbox-checkmark"></span>
+            <span className="checkbox-label">Download AI Metadata (ALT, Title, etc)</span>
+          </label>
+        </div>
+      )}
 
       <button
         className="download-cta"

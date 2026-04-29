@@ -142,8 +142,12 @@ export const useImageStudio = (initialImageSize) => {
   // Push initial pipeline to history on mount (after image size is known)
   const initializePipeline = useCallback((size) => {
     if (size.width && size.height) {
-      const initialOps = createDefaultOperations();
-      // Optionally: pre-configure resize/crop based on image size here
+      const initialOps = createDefaultOperations().map(op => {
+        if (op.type === 'resize' || op.type === 'crop') {
+          return { ...op, width: size.width, height: size.height };
+        }
+        return op;
+      });
       historyRef.current = [initialOps];
       historyIndexRef.current = 0;
       dispatch({ type: PIPELINE_ACTIONS.SET_OPERATIONS, payload: initialOps });

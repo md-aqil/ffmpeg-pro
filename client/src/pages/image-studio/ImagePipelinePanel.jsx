@@ -12,11 +12,28 @@ const ImagePipelinePanel = ({
   updateOperation,
   imageSize,
   OperationCard,
+  theme,
+  onToggleTheme,
 }) => {
   if (!selectedFile) return null;
 
   return (
     <aside className="studio-column studio-left">
+      <div className="theme-toggle-row px-1 mb-4 flex items-center justify-between">
+        <span className="text-xs font-semibold tracking-wider text-white/40 uppercase">Appearance</span>
+        <div 
+          className={`theme-toggle ${theme}`} 
+          onClick={onToggleTheme}
+          title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+        >
+          <div className="theme-toggle-thumb">
+            <span className="material-symbols-outlined text-xs">
+              {theme === 'dark' ? 'dark_mode' : 'light_mode'}
+            </span>
+          </div>
+        </div>
+      </div>
+
       <div className="section-header">
         <div>
           <div className="section-kicker">PIPELINE</div>

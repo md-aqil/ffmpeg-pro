@@ -117,7 +117,17 @@ const OperationCard = ({ operation, onToggle, onExpand, onUpdate, active, imageS
                     <input
                       type="number"
                       value={operation.width}
-                      onChange={(e) => onUpdate(operation.type, { width: e.target.value === '' ? '' : Number(e.target.value) })}
+                      onChange={(e) => {
+                        const newWidth = e.target.value === '' ? '' : Number(e.target.value);
+                        let updates = { width: newWidth };
+                        
+                        if (operation.maintainAspectRatio && newWidth !== '' && operation.width && operation.height) {
+                          const ratio = operation.width / operation.height;
+                          updates.height = Math.round(newWidth / ratio);
+                        }
+                        
+                        onUpdate(operation.type, updates);
+                      }}
                       placeholder="1920"
                     />
                     <span className="input-unit">px</span>
@@ -141,7 +151,17 @@ const OperationCard = ({ operation, onToggle, onExpand, onUpdate, active, imageS
                     <input
                       type="number"
                       value={operation.height}
-                      onChange={(e) => onUpdate(operation.type, { height: e.target.value === '' ? '' : Number(e.target.value) })}
+                      onChange={(e) => {
+                        const newHeight = e.target.value === '' ? '' : Number(e.target.value);
+                        let updates = { height: newHeight };
+                        
+                        if (operation.maintainAspectRatio && newHeight !== '' && operation.width && operation.height) {
+                          const ratio = operation.width / operation.height;
+                          updates.width = Math.round(newHeight * ratio);
+                        }
+                        
+                        onUpdate(operation.type, updates);
+                      }}
                       placeholder="1080"
                     />
                     <span className="input-unit">px</span>

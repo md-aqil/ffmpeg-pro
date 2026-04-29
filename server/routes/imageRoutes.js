@@ -47,4 +47,10 @@ router.post('/pipeline', imageController.processPipeline);
 // POST /api/image/fast-preview - Process a fast preview of operations
 router.post("/fast-preview", imageController.generateFastPreview);
 
+// POST /api/image/analyze - AI analysis
+router.post("/analyze", imageController.analyzeImage);
+
+// POST /api/image/download-with-metadata - Download image with AI metadata in a ZIP
+router.post("/download-with-metadata", imageController.downloadWithMetadata);
+
 module.exports = router;

@@ -540,4 +540,46 @@ export const processImagePipeline = async (fileId, fileName, operations, outputF
   }
 };
 
+/**
+ * Analyzes an image with AI to get suggested filename and metadata
+ * @param {string} fileId - The ID of the uploaded file
+ * @param {string} fileName - The original name of the uploaded file
+ * @returns {Promise} - Promise that resolves with AI metadata
+ */
+export const analyzeImageWithAI = async (fileId, fileName) => {
+  try {
+    const response = await apiClient.post('/image/analyze', {
+      fileId,
+      fileName
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error analyzing image with AI:', error);
+    throw error;
+  }
+};
+
+/**
+ * Downloads a file with AI metadata in a ZIP archive
+ * @param {string} filename - The name of the processed image file
+ * @param {Object} metadata - The AI generated metadata
+ * @returns {Promise} - Promise that resolves with the ZIP blob
+ */
+export const downloadWithMetadata = async (filename, metadata) => {
+  try {
+    const response = await apiClient.post('/image/download-with-metadata', {
+      filename,
+      metadata
+    });
+    
+    if (response.data.success) {
+      return await downloadFile(response.data.data.filename);
+    }
+    throw new Error('Failed to prepare download with metadata');
+  } catch (error) {
+    console.error('Error downloading with metadata:', error);
+    throw error;
+  }
+};
+
 export default apiClient;
