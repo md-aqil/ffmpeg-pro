@@ -73,3 +73,5 @@ server/converted/*
 # But keep the directories themselves
 !server/uploads/.gitkeep
 !server/converted/.gitkeep
+# Deployment details (sensitive)
+DEPLOYMENT_DETAILS.md

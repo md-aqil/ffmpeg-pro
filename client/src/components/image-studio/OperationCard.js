@@ -191,27 +191,11 @@ const OperationCard = ({ operation, onToggle, onExpand, onUpdate, active, imageS
                         return;
                       }
 
-                      // Calculate dimensions based on original image width to keep it consistent
-                      const baseWidth = imageSize?.width || 1920;
-                      const targetWidth = baseWidth;
-                      const targetHeight = Math.round((baseWidth * preset.height) / preset.width);
-
-                      // Sync crop immediately
-                      const ratio = preset.width / preset.height;
-                      const sourceRatio = imageSize.width / imageSize.height;
-
-                      let cw, ch, cx, cy;
-                      if (ratio >= sourceRatio) {
-                        cw = imageSize.width;
-                        ch = Math.round(imageSize.width / ratio);
-                        cx = 0;
-                        cy = Math.round((imageSize.height - ch) / 2);
-                      } else {
-                        ch = imageSize.height;
-                        cw = Math.round(imageSize.height * ratio);
-                        cy = 0;
-                        cx = Math.round((imageSize.width - cw) / 2);
-                      }
+                      // Calculate dimensions based on current height to ensure Width input updates
+                      // This addresses the user requirement for Width to change accordingly.
+                      const currentHeight = Number(operation.height) || imageSize?.height || 1080;
+                      const targetHeight = currentHeight;
+                      const targetWidth = Math.round((currentHeight * preset.width) / preset.height);
 
                       // Only update the resize operation
                       onUpdate("resize", {
