@@ -28,7 +28,7 @@ const analyzeImage = async (filePath) => {
     Respond ONLY with the JSON object.`;
 
     const completion = await client.chat.completions.create({
-      model: "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning",
+      model: "meta/llama-3.2-90b-vision-instruct",
       messages: [
         {
           role: "user",
