@@ -910,7 +910,7 @@ const ImagePage = ({ theme, setTheme }) => {
          />
 
           <StudioCanvas
-            previewDisplayUrl={fastPreviewUrl || renderedPreviewUrl || previewUrl}
+            previewDisplayUrl={previewUrl}
             selectedFileName={selectedFile?.name}
             renderedPreviewUrl={renderedPreviewUrl}
             canvasFrameStyle={canvasFrameStyle}
